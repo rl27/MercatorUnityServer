@@ -27,6 +27,10 @@ def get_initial_image():
     return jsonify({'result': result, 'vector': vector})
 '''
 
+@app.route('/')
+def home():
+    return ""
+
 @app.route('/get_image', methods=['POST'])
 def get_image():
     data = json.loads(request.form.get('data'))
