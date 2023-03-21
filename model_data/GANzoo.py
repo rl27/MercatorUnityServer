@@ -11,10 +11,16 @@ class PoincareGANzoo(HyperbolicGenerativeModel):
 
     def __init__(self):
         # PGAN models: ['celebAHQ-256', 'celebAHQ-512', 'DTD', 'celeba']
+
+        # Uncomment the line below to use cpu instead of gpu
+        # torch.cuda.is_available = lambda : False
+
         use_gpu = True if torch.cuda.is_available() else False
+        _device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.device = torch.device(_device)
         self.model = torch.hub.load('facebookresearch/pytorch_GAN_zoo:hub',
                                     'PGAN', model_name='celebAHQ-512',
-                                     pretrained=True, useGPU=use_gpu)
+                                     pretrained=True, useGPU=use_gpu, map_location=torch.device(_device))
 
 
     def generate_image_from_latent_vector(self, v) -> Image:
@@ -29,7 +35,7 @@ class PoincareGANzoo(HyperbolicGenerativeModel):
         # https://github.com/facebookresearch/pytorch_GAN_zoo/blob/main/models/base_GAN.py#L328
         # v = torch.randn(1, latent_dim).to('cuda')
 
-        v = torch.tensor(v, dtype=torch.float).to('cuda').unsqueeze(dim=0)
+        v = torch.tensor(v, dtype=torch.float).to(self.device).unsqueeze(dim=0)
 
         with torch.no_grad():
             outputs = self.model.test(v, toCPU=True)
@@ -39,7 +45,7 @@ class PoincareGANzoo(HyperbolicGenerativeModel):
 
     def generate_multiple(self, v) -> Image:
 
-        v = torch.tensor(v, dtype=torch.float).to('cuda')
+        v = torch.tensor(v, dtype=torch.float).to(self.device)
 
         with torch.no_grad():
             generated_images = self.model.test(v, toCPU=True)

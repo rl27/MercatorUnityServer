@@ -18,9 +18,9 @@ def safe_mkdir(path):
         os.makedirs(path)
 
 
-safe_mkdir(path_configs['world_data_dir'])
-safe_mkdir(path_configs['model_data_dir'])
-safe_mkdir(join(path_configs['world_data_dir'], 'images'))
+# safe_mkdir(path_configs['world_data_dir'])
+# safe_mkdir(path_configs['model_data_dir'])
+# safe_mkdir(join(path_configs['world_data_dir'], 'images'))
 
 ### HARDWARE CONFIGS ###
 

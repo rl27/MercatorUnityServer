@@ -29,11 +29,19 @@ import rdkit
 lg = rdkit.RDLogger.logger() 
 lg.setLevel(rdkit.RDLogger.CRITICAL)
 
+# Uncomment the line below to use cpu instead of gpu
+# Also uncomment the same lines in fast_jtnn/nnutils.py and fast_jtnn/jtnn_vae.py
+# torch.cuda.is_available = lambda : False
+
 class PoincareJTVAE(HyperbolicGenerativeModel):
 
     latent_dim = 28
 
     def __init__(self):
+
+        _device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.device = torch.device(_device)
+
         vocab_file = 'model_data/vocab.txt'
         vocab = [x.strip("\r\n ") for x in open(vocab_file)] 
         vocab = Vocab(vocab)
@@ -45,13 +53,13 @@ class PoincareJTVAE(HyperbolicGenerativeModel):
         model = 'model_data/model.iter-400000'
 
         self.model = JTNNVAE(vocab, hidden_size, latent_size, depthT, depthG)
-        self.model.load_state_dict(torch.load(model))
-        self.model = self.model.cuda()
+        self.model.load_state_dict(torch.load(model, map_location=torch.device(_device)))
+        self.model = self.model.to(self.device)
 
 
     def generate_image_from_latent_vector(self, v) -> Image:
 
-        v = torch.tensor(v, dtype=torch.float).to('cuda')
+        v = torch.tensor(v, dtype=torch.float).to(self.device)
 
         with torch.no_grad():
             output = self.model.sample_from_v(v)
@@ -60,7 +68,7 @@ class PoincareJTVAE(HyperbolicGenerativeModel):
 
     def generate_multiple(self, v) -> Image:
 
-        v = torch.tensor(v, dtype=torch.float).to('cuda')
+        v = torch.tensor(v, dtype=torch.float).to(self.device)
 
         outputs = []
         with torch.no_grad():

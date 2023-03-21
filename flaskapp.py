@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 
-import threading
 from flask import Flask, request, make_response, jsonify
 from image_sampler.ImageSampler import ImageSampler
 import json
-from PIL import Image
 from io import BytesIO
 import base64
 

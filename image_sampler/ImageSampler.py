@@ -1,23 +1,17 @@
 import math
 from typing import List, Tuple
 from params import hp, path_configs
-from os.path import join
-from PIL import Image
 from model_data.hyperbolic_generative_model import HyperbolicGenerativeModel
 from model_data.GANzoo import PoincareGANzoo
 from model_data.JTVAE import PoincareJTVAE
 import numpy as np
-import os
-import random
-import copy
 from scipy.spatial.distance import pdist, squareform
 
-models = {'poincare': PoincareGANzoo}
-# models = {'poincare': PoincareJTVAE}
+# models = {'poincare': PoincareGANzoo}
+models = {'poincare': PoincareJTVAE}
 
 class ImageSampler:
     def __init__(self, starting_tiles=None):
-        self.path_to_world_data = join(path_configs['world_data_dir'], 'world_data.csv')
         self.sigma = hp['sigma']
         self.alpha = hp['alpha']
         self.lscale = hp['lscale']

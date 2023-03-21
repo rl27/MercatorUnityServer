@@ -14,10 +14,17 @@ import rdkit
 import rdkit.Chem as Chem
 import copy, math
 
+# Uncomment the line below to use cpu
+# torch.cuda.is_available = lambda : False
+
 class JTNNVAE(nn.Module):
 
     def __init__(self, vocab, hidden_size, latent_size, depthT, depthG):
         super(JTNNVAE, self).__init__()
+
+        _device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.device = torch.device(_device)
+
         self.vocab = vocab
         self.hidden_size = hidden_size
         self.latent_size = latent_size = latent_size // 2 #Tree and Mol has two vectors
@@ -66,8 +73,8 @@ class JTNNVAE(nn.Module):
         return z_vecs, kl_loss
 
     def sample_prior(self, prob_decode=False):
-        z_tree = torch.randn(1, self.latent_size).cuda()
-        z_mol = torch.randn(1, self.latent_size).cuda()
+        z_tree = torch.randn(1, self.latent_size).to(self.device)
+        z_mol = torch.randn(1, self.latent_size).to(self.device)
         return self.decode(z_tree, z_mol, prob_decode)
 
     def sample_from_v(self, v):
@@ -177,7 +184,7 @@ class JTNNVAE(nn.Module):
             return None, cur_mol
 
         cand_smiles,cand_amap = zip(*cands)
-        aroma_score = torch.Tensor(aroma_score).cuda()
+        aroma_score = torch.Tensor(aroma_score).to(self.device)
         cands = [(smiles, all_nodes, cur_node) for smiles in cand_smiles]
 
         if len(cands) > 1:
