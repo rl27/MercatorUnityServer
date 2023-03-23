@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from sys import argv, exit, stderr
-from flaskapp import app
+from main import app
 
 def main():
 

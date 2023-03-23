@@ -1,11 +1,24 @@
-numpy==1.21.2
-pillow>=9.4.0
-scipy==1.7.3
-torch==2.0.0
-torchvision==0.15.1
-flask==2.0.2
-rdkit-pypi==2022.03.3    # colorama==0.4.6
+numpy
+pillow
+scipy
+flask
+rdkit-pypi
+
+# For using torch on CPU
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+--extra-index-url https://download.pytorch.org/whl/cpu
+torchvision
+
+
+# numpy==1.21.2
+# pillow>=9.4.0
+# scipy==1.7.3
+# torch==2.0.0
+# torchvision==0.15.1
+# flask==2.0.2
+# rdkit-pypi==2022.03.3    # colorama==0.4.6
 
 # "Torch not compiled with CUDA enabled": https://github.com/pytorch/pytorch/issues/30664#issuecomment-757431613
 # pip install torch -f https://download.pytorch.org/whl/torch_stable.html
--f https://download.pytorch.org/whl/torch_stable.html
+# -f https://download.pytorch.org/whl/torch_stable.html
