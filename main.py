@@ -46,9 +46,22 @@ def get_image():
     
     return jsonify({'images': images, 'vectors': str(new_latent_vectors)})
 
+# Health check route
+@app.route("/isalive")
+def is_alive():
+    print("/isalive request")
+    status_code = Response(status=200)
+    return status_code
 
 # https://stackoverflow.com/a/41444786
 def convertToPNG(im):
     with BytesIO() as f:
         im.save(f, format='PNG') # convert the PIL image to byte array
         return f.getvalue()
+
+if __name__ == '__main__':
+    try:
+        app.run(host='0.0.0.0', port=8080, debug=True)
+    except Exception as ex:
+        print(ex, file=stderr)
+        exit(1)
