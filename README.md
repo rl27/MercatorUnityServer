@@ -1,5 +1,5 @@
 # MercatorUnityServer
-Flask server for [MercatorUnity](https://github.com/rl27/MercatorUnity)
+Flask servers for [MercatorUnity](https://github.com/rl27/MercatorUnity)
 
 MercatorMidpoint is an intermediate Flask server that communicates with the Unity app and with GCP.
 

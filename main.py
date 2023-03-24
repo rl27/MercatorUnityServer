@@ -33,6 +33,14 @@ def get_image():
     world_data = data['world']
     set_of_coords = data['coords']
     latent_vectors = data['vectors']
+    
+    # sentence = data['sentence']
+    # if sentence != "":
+    #     im, vector = sampler.generate_initial_image(sentence)
+    #     image = str(base64.b64encode(convertToPNG(im)))[2:-1]
+    #     return jsonify({ 'predictions': { 'images': image, 'vectors': str([vector])} })
+
+
     ims, new_latent_vectors = sampler.generate_images_for_megatile(world_data, set_of_coords, latent_vectors)
 
     # Convert PIL images to byte arrays, then to strings; place them all in one string, delimited by spaces
