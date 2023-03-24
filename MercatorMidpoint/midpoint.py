@@ -30,8 +30,8 @@ def predict_custom_trained_model_sample(
     parameters = json_format.ParseDict(parameters_dict, Value())
 
     endpoint = client.endpoint_path(project=project, location=location, endpoint=endpoint_id)
-
     return client.predict(endpoint=endpoint, instances=instances, parameters=parameters)
+
 
 @app.route('/get_image', methods=['POST'])
 def get_image():
@@ -46,13 +46,7 @@ def get_image():
 
     return jsonify({'images': response.predictions[0], 'vectors': response.predictions[1]})
 
+
 @app.route('/')
 def home():
     return ""
-
-if __name__ == '__main__':
-    try:
-        app.run(host='0.0.0.0', port=5555, debug=True)
-    except Exception as ex:
-        print(ex, file=stderr)
-        exit(1)
