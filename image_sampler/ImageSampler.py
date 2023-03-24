@@ -3,12 +3,12 @@ from typing import List, Tuple
 from params import hp, path_configs
 from model_data.hyperbolic_generative_model import HyperbolicGenerativeModel
 from model_data.GANzoo import PoincareGANzoo
-from model_data.JTVAE import PoincareJTVAE
+# from model_data.JTVAE import PoincareJTVAE
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 
-# models = {'poincare': PoincareGANzoo}
-models = {'poincare': PoincareJTVAE}
+models = {'poincare': PoincareGANzoo}
+# models = {'poincare': PoincareJTVAE}
 
 class ImageSampler:
     def __init__(self, starting_tiles=None):

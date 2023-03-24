@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from flask import Flask, request, make_response, jsonify
+from flask import Flask, request, make_response, jsonify, Response
 from image_sampler.ImageSampler import ImageSampler
 import json
 from io import BytesIO
@@ -33,7 +33,7 @@ def home():
 
 @app.route('/get_image', methods=['POST'])
 def get_image():
-    data = json.loads(request.form.get('data'))
+    data = request.get_json()
     world_data = data['world']
     set_of_coords = data['coords']
     latent_vectors = data['vectors']
