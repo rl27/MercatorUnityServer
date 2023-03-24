@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from sys import argv, exit, stderr
-from midpoint import app
+from main import app
 
 def main():
 
