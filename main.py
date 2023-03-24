@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from flask import Flask, request, make_response, jsonify, Response
+from flask import Flask, request, jsonify, Response
 from image_sampler.ImageSampler import ImageSampler
 import json
 from io import BytesIO

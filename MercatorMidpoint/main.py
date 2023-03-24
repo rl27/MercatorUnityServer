@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from flask import Flask, request, make_response, jsonify, Response
+from flask import Flask, request, jsonify
+from flask_cors import CORS, cross_origin
 import os
 
 from typing import Dict, List, Union
@@ -11,6 +12,8 @@ from google.protobuf.struct_pb2 import Value
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getcwd() + "/inbound-bee-381420-3b5ab19a2a50.json"
 
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 # Adapted from: https://github.com/googleapis/python-aiplatform/blob/main/samples/snippets/prediction_service/predict_custom_trained_model_sample.py
 def predict_custom_trained_model_sample(
@@ -34,6 +37,7 @@ def predict_custom_trained_model_sample(
 
 
 @app.route('/get_image', methods=['POST'])
+@cross_origin()
 def get_image():
     data = request.get_json()
 
