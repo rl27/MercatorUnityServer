@@ -27,13 +27,9 @@ def get_initial_image():
     return jsonify({'result': result, 'vector': vector})
 '''
 
-@app.route('/')
-def home():
-    return ""
-
 @app.route('/get_image', methods=['POST'])
 def get_image():
-    data = request.get_json()
+    data = request.get_json()['instances'][0]
     world_data = data['world']
     set_of_coords = data['coords']
     latent_vectors = data['vectors']
@@ -44,7 +40,7 @@ def get_image():
     for i in range(1, len(ims)):
         images = '{} {}'.format(images, str(base64.b64encode(convertToPNG(ims[i])))[2:-1])
     
-    return jsonify({'images': images, 'vectors': str(new_latent_vectors)})
+    return jsonify({ 'predictions': { 'images': images, 'vectors': str(new_latent_vectors)} })
 
 # Health check route
 @app.route("/isalive")
