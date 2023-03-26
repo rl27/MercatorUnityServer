@@ -2,13 +2,21 @@ numpy
 pillow
 scipy
 flask
-rdkit-pypi
+# gunicorn
+# rdkit-pypi
 
-# For using torch on CPU
---extra-index-url https://download.pytorch.org/whl/cpu
+# URL for using torch on CPU
+# --extra-index-url https://download.pytorch.org/whl/cpu
 torch
---extra-index-url https://download.pytorch.org/whl/cpu
 torchvision
+-f https://download.pytorch.org/whl/torch_stable.html
+
+# For LAFITE
+ninja
+clip-openai  # git+https://github.com/openai/CLIP.git
+gdown
+
+
 
 
 # numpy==1.21.2

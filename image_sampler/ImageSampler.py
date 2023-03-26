@@ -3,11 +3,13 @@ from typing import List, Tuple
 from params import hp, path_configs
 from model_data.hyperbolic_generative_model import HyperbolicGenerativeModel
 from model_data.GANzoo import PoincareGANzoo
+from model_data.LAFITE import PoincareLAFITE
 # from model_data.JTVAE import PoincareJTVAE
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 
-models = {'poincare': PoincareGANzoo}
+# models = {'poincare': PoincareGANzoo}
+models = {'poincare': PoincareLAFITE}
 # models = {'poincare': PoincareJTVAE}
 
 class ImageSampler:
@@ -20,6 +22,10 @@ class ImageSampler:
         assert self.alpha > 0
         self.model_family = models[hp['model_family']]
         self.generative_model = self.model_family()
+
+    def generate_image_from_sentence(self, sentence: str):
+        assert len(sentence) > 0, "Sentence should not be empty"
+        return self.generative_model.generate_image_from_sentence(sentence)
 
     def generate_images_for_megatile(self, world_data: List[Tuple[int, float, float]], tile_coords: List[Tuple[float, float]], latent_vectors: List[List[float]]):
         ### 1. read in old data with schema (tile_index, tile_x, tile_y, latent_vector)
@@ -68,6 +74,7 @@ class ImageSampler:
             K = np.exp(-0.5*dists / self.lscale**2) + 1e-6*np.eye(len(tile_coords))
             cK = np.linalg.cholesky(K)
             noise = cK @ np.random.randn(len(tile_coords), self.model_family.latent_dim)
+            noise = noise / np.linalg.norm(noise, axis=1)[:, np.newaxis]  # normalize
             ims = self.generative_model.generate_multiple(noise)
             for i, im in enumerate(ims):
                 images.append(im)
@@ -82,6 +89,9 @@ class ImageSampler:
         for i in range(len(tile_coords)):
 
             v = self.sample_latent_vector(list_of_train_coords=world_data, list_of_test_coords=[tile_coords[i]], latent_vectors=latent_vectors)
+            
+            v = (v / np.linalg.norm(v)).tolist()  # normalize
+
             vectors.append(v[0])
 
             world_data.append(tile_coords[i])

@@ -9,6 +9,7 @@ from google.cloud import aiplatform
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 
+# Use Google service account
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getcwd() + "/inbound-bee-381420-3b5ab19a2a50.json"
 
 app = Flask(__name__)
@@ -43,9 +44,9 @@ def get_image():
 
     response = predict_custom_trained_model_sample(
         project="inbound-bee-381420",
-        endpoint_id="6563798544799498240",
+        endpoint_id="1304016392495824896",
         location="us-central1",
-        instances={ "world": data['world'], "coords": data['coords'], "vectors": data['vectors'] }
+        instances=data
     )
 
     return jsonify({'images': response.predictions[0], 'vectors': response.predictions[1]})

@@ -40,6 +40,6 @@ def move(x):
 # hyperparameters
 hp = {'sigma': 1.0, # Greater sigma = greater overall covariance
       'alpha': 3.2, # Smaller alpha = distance has a larger effect
-      'lscale': 1.6,
+      'lscale': 1.6, # Affects initial megatile; greater lscale = more similar tiles
       'model_family': 'poincare'
       }

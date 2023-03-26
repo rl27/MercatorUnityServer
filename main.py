@@ -30,25 +30,35 @@ def get_initial_image():
 @app.route('/get_image', methods=['POST'])
 def get_image():
     data = request.get_json()['instances'][0]
+    # data = request.get_json()  # Data format for communicating directly with Unity
     world_data = data['world']
     set_of_coords = data['coords']
     latent_vectors = data['vectors']
+    sentence = data['sentence']
     
-    # sentence = data['sentence']
-    # if sentence != "":
-    #     im, vector = sampler.generate_initial_image(sentence)
-    #     image = str(base64.b64encode(convertToPNG(im)))[2:-1]
-    #     return jsonify({ 'predictions': { 'images': image, 'vectors': str([vector])} })
+    ims = []
+    vectors = []
+    if sentence != "":
+        print(sentence)
+        
+        world_data.append(set_of_coords[0])
+        set_of_coords.pop(0)
+        im, vector = sampler.generate_image_from_sentence(sentence)
+        latent_vectors.append(vector)
 
+        ims = [im]
+        vectors = [vector]
 
-    ims, new_latent_vectors = sampler.generate_images_for_megatile(world_data, set_of_coords, latent_vectors)
+    new_ims, new_latent_vectors = sampler.generate_images_for_megatile(world_data, set_of_coords, latent_vectors)
+
+    ims = ims + new_ims
+    vectors = vectors + new_latent_vectors
 
     # Convert PIL images to byte arrays, then to strings; place them all in one string, delimited by spaces
-    images = str(base64.b64encode(convertToPNG(ims[0])))[2:-1]
-    for i in range(1, len(ims)):
-        images = '{} {}'.format(images, str(base64.b64encode(convertToPNG(ims[i])))[2:-1])
+    images = ims_to_string(ims)
     
-    return jsonify({ 'predictions': { 'images': images, 'vectors': str(new_latent_vectors)} })
+    return jsonify({ 'predictions': { 'images': images, 'vectors': str(vectors)} })
+    # return jsonify({ 'images': images, 'vectors': str(vectors) })  # Data format for communicating directly with Unity
 
 # Health check route
 @app.route("/isalive")
@@ -62,6 +72,13 @@ def convertToPNG(im):
     with BytesIO() as f:
         im.save(f, format='PNG') # convert the PIL image to byte array
         return f.getvalue()
+
+def ims_to_string(ims):
+    images = str(base64.b64encode(convertToPNG(ims[0])))[2:-1]
+    for i in range(1, len(ims)):
+        images = '{} {}'.format(images, str(base64.b64encode(convertToPNG(ims[i])))[2:-1])
+    return images
+
 
 if __name__ == '__main__':
     try:

@@ -15,3 +15,5 @@ COPY . .
 # Launch server
 EXPOSE 8080
 ENTRYPOINT ["python", "main.py"]
+
+# CMD ["gunicorn", "main:app", "--timeout=0", "--preload", "--workers=1", "--threads=4", "--bind=0.0.0.0:8080"]
