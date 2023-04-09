@@ -40,7 +40,7 @@ def move(x):
 # hyperparameters
 # For GANzoo, use sigma=0.01, alpha=1.1
 hp = {'sigma': 0.02, # Greater sigma = greater overall covariance
-      'alpha': 1.1, # Smaller alpha = distance has a larger effect
+      'alpha': 2.0, # Smaller alpha = distance has a larger effect; larger alpha = more similar images
       'lscale': 1.6, # Affects initial megatile; greater lscale = more similar tiles
       'model_family': 'poincare'
       }

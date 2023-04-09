@@ -35,6 +35,9 @@ def get_image():
     set_of_coords = data['coords']
     latent_vectors = data['vectors']
     sentence = data['sentence']
+
+    sigma = data.get('sigma')
+    lengthscale = data.get('lengthscale')
     
     ims = []
     vectors = []
@@ -49,7 +52,7 @@ def get_image():
         ims = [im]
         vectors = [vector]
 
-    new_ims, new_latent_vectors = sampler.generate_images_for_megatile(world_data, set_of_coords, latent_vectors)
+    new_ims, new_latent_vectors = sampler.generate_images_for_megatile(world_data, set_of_coords, latent_vectors, sigma, lengthscale)
 
     ims = ims + new_ims
     vectors = vectors + new_latent_vectors

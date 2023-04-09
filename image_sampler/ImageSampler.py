@@ -27,7 +27,7 @@ class ImageSampler:
         assert len(sentence) > 0, "Sentence should not be empty"
         return self.generative_model.generate_image_from_sentence(sentence)
 
-    def generate_images_for_megatile(self, world_data: List[Tuple[int, float, float]], tile_coords: List[Tuple[float, float]], latent_vectors: List[List[float]]):
+    def generate_images_for_megatile(self, world_data, tile_coords, latent_vectors, sigma, lengthscale):
         ### 1. read in old data with schema (tile_index, tile_x, tile_y, latent_vector)
         assert len(world_data) == len(latent_vectors), "Number of world coords should equal number of latent vectors"
 
@@ -52,6 +52,10 @@ class ImageSampler:
         # data_df = pd.concat([data_df, new_df])
         # data_df.to_csv(self.path_to_world_data)
 
+        if sigma is None:
+            sigma = hp['sigma']
+        if lengthscale is None:
+            lengthscale = hp['alpha']
 
         images = []
         vectors = []
@@ -86,31 +90,35 @@ class ImageSampler:
 
         # Using a loop to generate each vector individually; may be more efficient to generate at same time?
         # Appending to world_data and latent_vectors to make this work
-        for i in range(len(tile_coords)):
+        # for i in range(len(tile_coords)):
 
-            v = self.sample_latent_vector(list_of_train_coords=world_data, list_of_test_coords=[tile_coords[i]], latent_vectors=latent_vectors)
+        #     v = self.sample_latent_vector(world_data, [tile_coords[i]], latent_vectors, sigma, lengthscale)
             
-            v = (v / np.linalg.norm(v)).tolist()  # normalize
+        #     v = (v / np.linalg.norm(v)).tolist()  # normalize
 
-            vectors.append(v[0])
+        #     vectors.append(v[0])
 
-            world_data.append(tile_coords[i])
-            latent_vectors.append(v[0])
+        #     world_data.append(tile_coords[i])
+        #     latent_vectors.append(v[0])
 
-            im = self.generative_model.generate_image_from_latent_vector(v)
-            images.append(im)
-        
-        # The code below generates everything at once.
-        # new_latent_vectors = self.sample_latent_vector(list_of_train_coords=world_data, list_of_test_coords=tile_coords, latent_vectors=latent_vectors)
-        # for i, v in enumerate(new_latent_vectors):
         #     im = self.generative_model.generate_image_from_latent_vector(v)
         #     images.append(im)
-        #     vectors.append(v)
+        
+        # The code below generates everything at once.
+        vectors = self.sample_latent_vector(world_data, tile_coords, latent_vectors, sigma, lengthscale)
+        vectors = vectors / np.linalg.norm(vectors, axis=1, keepdims=True)  # normalize
+        images = self.generative_model.generate_multiple(vectors)
+        '''
+        for i, v in enumerate(new_latent_vectors):
+            im = self.generative_model.generate_image_from_latent_vector(v)
+            images.append(im)
+            vectors.append((v / np.linalg.norm(v)).tolist())
+        '''
 
-        return images, vectors
+        return images, vectors.tolist()
 
     # this implements the GP logic
-    def sample_latent_vector(self, list_of_train_coords, list_of_test_coords, latent_vectors):
+    def sample_latent_vector(self, list_of_train_coords, list_of_test_coords, latent_vectors, sigma, lengthscale):
         """
         Let the number of training points (X: coords from data_df) be m.
         Let the number of test points (X_*: coords from list_of_test_coords) be n.
@@ -131,6 +139,25 @@ class ImageSampler:
         :return: a list of n vectors of size d representing the sampled latent space vectors.
         """
 
+        if len(list_of_train_coords) == 0:
+            # same as hyperboloid_distance, but takes in two vectors
+            def dist2(a, b):
+                x1, z1 = a
+                x2, z2 = b
+                y1 = math.sqrt(1 + x1**2 + z1**2)
+                y2 = math.sqrt(1 + x2**2 + z2**2)
+                minkDot = y1 * y2 - x1 * x2 - z1 * z2
+                if minkDot < 1:
+                    return 0
+                return math.acosh(minkDot)
+
+            dists = squareform(pdist(list_of_test_coords, dist2))
+            K = np.exp(-0.5*dists / self.lscale**2) + 1e-6*np.eye(len(list_of_test_coords))
+            cK = np.linalg.cholesky(K)
+            noise = cK @ np.random.randn(len(list_of_test_coords), self.model_family.latent_dim)
+            noise = noise / np.linalg.norm(noise, axis=1)[:, np.newaxis]  # normalize
+            return noise
+
         m = len(list_of_train_coords)
         n = len(list_of_test_coords)
         d = self.model_family.latent_dim
@@ -138,12 +165,12 @@ class ImageSampler:
         data = np.vstack([np.array(x) for x in latent_vectors])
 
         # 1. compute the training covariance matrix K of size mxm.
-        train_cov = self.compute_covariance_matrix(list_of_train_coords, list_of_train_coords)
+        train_cov = self.compute_covariance_matrix(list_of_train_coords, list_of_train_coords, sigma, lengthscale)
         train_cov += np.eye(train_cov.shape[0])*1e-8  # Prevent singular matrices
         # 2. compute the train-test covariance matrix K_* of size mxn.
-        train_test_cov = self.compute_covariance_matrix(list_of_train_coords, list_of_test_coords)
+        train_test_cov = self.compute_covariance_matrix(list_of_train_coords, list_of_test_coords, sigma, lengthscale)
         # 3. compute the test covariance matrix K_** of size nxn.
-        test_cov = self.compute_covariance_matrix(list_of_test_coords, list_of_test_coords)
+        test_cov = self.compute_covariance_matrix(list_of_test_coords, list_of_test_coords, sigma, lengthscale)
 
         # 4. compute the posterior covariance SIGMA = K_** - K_*^T K^(-1) K_*. This is the same for each of the d GPs.
         posterior_cov = test_cov - train_test_cov.T @ np.linalg.inv(train_cov) @ train_test_cov
@@ -190,25 +217,26 @@ class ImageSampler:
             return 0
         return math.acosh(minkDot)
 
-    # our kernel function
-    # this is the secret sauce binding the hyperbolic geometry to the ML
-    # k(x,x') = sigma^2 e^(-alpha * d(x, x')) is a PD kernel for any distance d with sigma^2, alpha > 0
-    # got this from Didong Li
-    def k(self, x1, y1, x2, y2):
-        return (self.sigma ** 2) * math.exp(-1 * self.hyperboloid_distance(x1, y1, x2, y2) / self.alpha)
-        # return math.exp(-0.5 * (((x1-x2)/self.alpha)**2 + ((y1-y2)/self.alpha)**2))
 
-
-    def compute_covariance_matrix(self, coords1, coords2):
+    def compute_covariance_matrix(self, coords1, coords2, sigma, lengthscale):
         """
         :param coords1: list of a coords
         :param coords2: list of b coords
         :return: return a covariance matrix of size axb
         """
+        # our kernel function
+        # this is the secret sauce binding the hyperbolic geometry to the ML
+        # k(x,x') = sigma^2 e^(-alpha * d(x, x')) is a PD kernel for any distance d with sigma^2, alpha > 0
+        # got this from Didong Li
+
+        def k(x1, y1, x2, y2):
+            return (sigma ** 2) * math.exp(-1 * self.hyperboloid_distance(x1, y1, x2, y2)**2 / lengthscale)
+            # return math.exp(-0.5 * (((x1-x2)/self.alpha)**2 + ((y1-y2)/self.alpha)**2))
+
         cov = np.zeros((len(coords1), len(coords2)))
         for row, (x1, y1) in enumerate(coords1):
             for col, (x2, y2) in enumerate(coords2):
-                cov[row, col] = self.k(x1, y1, x2, y2)
+                cov[row, col] = k(x1, y1, x2, y2)
         return cov
 
     def get_random_coords(self, d):

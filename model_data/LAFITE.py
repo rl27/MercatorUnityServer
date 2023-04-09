@@ -11,12 +11,14 @@ from Lafite import dnnlib, legacy
 
 import gdown
 
+use_cpu = True
+
 class Generator:
     def __init__(self, device, path):
         self.name = 'generator'
         self.model = self.load_model(device, path)
         self.device = device
-        self.force_32 = True # True if using CPU, false if using GPU
+        self.force_32 = use_cpu # True if using CPU, false if using GPU
         
     def load_model(self, device, path):
         with dnnlib.util.open_url(path) as f:
@@ -41,7 +43,7 @@ class Generator:
 
 class PoincareLAFITE(HyperbolicGenerativeModel):
 
-    latent_dim = 512
+    latent_dim = 64
 
     def __init__(self):
         #gdown.download('https://drive.google.com/uc?id=1eNkuZyleGJ3A3WXTCIGYXaPwJ6NH9LRA', 'LAFITE_G.pkl')
@@ -49,7 +51,7 @@ class PoincareLAFITE(HyperbolicGenerativeModel):
         #gdown.download('https://drive.google.com/u/0/uc?id=17ER7Yl02Y6yCPbyWxK_tGrJ8RKkcieKq', 'LAFITE_CC.pkl')
         
         with torch.no_grad():
-            self.device = 'cpu' # 'cpu' or 'cuda:0'
+            self.device = 'cpu' if use_cpu else 'cuda:0'
             path = './LAFITE_NN.pkl'  # pre-trained model
             self.generator = Generator(device=self.device, path=path)
             self.clip_model, _ = clip.load("ViT-B/32", device=self.device)
