@@ -16,7 +16,6 @@ print("app and sampler created")
 
 #-----------------------------------------------------------------------
 
-A = np.random.normal(0, 1, (512, 64)) / np.sqrt(512)
 
 @app.route('/get_image', methods=['POST'])
 def get_image():
@@ -48,12 +47,11 @@ def get_image():
 
     vectors = sampler.sample_latent_vector(world_data, set_of_coords, latent_vectors, sigma, lengthscale)
     vectors = vectors / np.linalg.norm(vectors, axis=1, keepdims=True)
-    v2 = (A @ vectors.T).T.tolist()
     vectors = vectors.tolist()
     images = ""
     time.sleep(0.3)
 
-    return jsonify({ 'images': images, 'vectors': str(vectors), 'target': str(target)[1:-1], 'v2': str(v2) })  # Data format for communicating directly with Unity
+    return jsonify({ 'images': images, 'vectors': str(vectors), 'target': str(target)[1:-1] })  # Data format for communicating directly with Unity
 
 
 

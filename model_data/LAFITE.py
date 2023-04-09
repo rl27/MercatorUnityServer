@@ -43,7 +43,7 @@ class Generator:
 
 class PoincareLAFITE(HyperbolicGenerativeModel):
 
-    latent_dim = 64
+    latent_dim = 512
 
     def __init__(self):
         #gdown.download('https://drive.google.com/uc?id=1eNkuZyleGJ3A3WXTCIGYXaPwJ6NH9LRA', 'LAFITE_G.pkl')
