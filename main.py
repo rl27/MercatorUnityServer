@@ -14,10 +14,15 @@ print("app and sampler created")
 
 #-----------------------------------------------------------------------
 
+using_midpoint = True
+
 @app.route('/get_image', methods=['POST'])
 def get_image():
-    data = request.get_json()['instances'][0]
-    # data = request.get_json()  # Data format for communicating directly with Unity
+    if using_midpoint:
+        data = request.get_json()['instances'][0]
+    else:
+        data = request.get_json()  # Data format for communicating directly with Unity
+
     world_data = data['world']
     set_of_coords = data['coords']
     latent_vectors = data['vectors']
@@ -47,8 +52,10 @@ def get_image():
     # Convert PIL images to byte arrays, then to strings; place them all in one string, delimited by spaces
     images = ims_to_string(ims)
     
-    return jsonify({ 'predictions': { 'images': images, 'vectors': str(vectors)} })
-    # return jsonify({ 'images': images, 'vectors': str(vectors) })  # Data format for communicating directly with Unity
+    if using_midpoint:
+        return jsonify({ 'predictions': { 'images': images, 'vectors': str(vectors)} })
+    else:
+        return jsonify({ 'images': images, 'vectors': str(vectors) })  # Data format for communicating directly with Unity
 
 # Health check route
 @app.route("/isalive")

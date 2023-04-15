@@ -11,7 +11,7 @@ from Lafite import dnnlib, legacy
 
 import gdown
 
-use_cpu = True
+use_cpu = False
 
 class Generator:
     def __init__(self, device, path):
