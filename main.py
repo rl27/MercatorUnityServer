@@ -6,7 +6,6 @@ import json
 from io import BytesIO
 import base64
 
-
 #-----------------------------------------------------------------------
 
 app = Flask(__name__)
@@ -14,18 +13,6 @@ sampler = ImageSampler()
 print("app and sampler created")
 
 #-----------------------------------------------------------------------
-
-'''
-@app.route('/get_image', methods=['POST'])
-def get_initial_image():
-    sentence = json.loads(request.form.get('text'))
-    im, vector = sampler.generate_initial_image(sentence)
-
-    # Convert PIL images to byte arrays, then to strings; place them all in one string, delimited by spaces
-    result = str(base64.b64encode(convertToPNG(im)))[2:-1]
-    
-    return jsonify({'result': result, 'vector': vector})
-'''
 
 @app.route('/get_image', methods=['POST'])
 def get_image():
@@ -81,7 +68,6 @@ def ims_to_string(ims):
     for i in range(1, len(ims)):
         images = '{} {}'.format(images, str(base64.b64encode(convertToPNG(ims[i])))[2:-1])
     return images
-
 
 if __name__ == '__main__':
     try:

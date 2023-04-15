@@ -16,7 +16,6 @@ print("app and sampler created")
 
 #-----------------------------------------------------------------------
 
-
 @app.route('/get_image', methods=['POST'])
 def get_image():
     # data = request.get_json()['instances'][0]
@@ -30,17 +29,24 @@ def get_image():
     lengthscale = data.get('lengthscale')
     
     target = None
+    vectors = []
     if sentence != "":
         
         target = np.random.normal(0, 1, 512)
-
         target = target / np.linalg.norm(target)
         target = target.tolist()
         
-        # world_data.append(set_of_coords[0])
-        # set_of_coords.pop(0)
-        # _, vector = sampler.generate_image_from_sentence(sentence)
-        # latent_vectors.append(vector)
+        '''
+        world_data.append(set_of_coords[0])
+        set_of_coords.pop(0)
+        _, vector = sampler.generate_image_from_sentence(sentence)
+        latent_vectors.append(vector)
+        vectors = [vector]
+
+        target = vector + np.random.normal(0, 0.05, 512)
+        target = target / np.linalg.norm(target)
+        target = target.tolist()
+        '''
 
     # ims, vectors = sampler.generate_images_for_megatile(world_data, set_of_coords, latent_vectors, sigma, lengthscale)
     # images = ims_to_string(ims)
@@ -53,7 +59,35 @@ def get_image():
 
     return jsonify({ 'images': images, 'vectors': str(vectors), 'target': str(target)[1:-1] })  # Data format for communicating directly with Unity
 
+    # targeted init 
+    '''
+    target = None
+    vectors = []
+    if sentence != "":
+        
+        # target = np.random.normal(0, 1, 512)
+        # target = target / np.linalg.norm(target)
+        # target = target.tolist()
+        
+        world_data.append(set_of_coords[0])
+        set_of_coords.pop(0)
+        _, vector = sampler.generate_image_from_sentence(sentence)
+        latent_vectors.append(vector)
+        vectors = [vector]
 
+        target = vector + np.random.normal(0, 0.05, 512)
+        target = target / np.linalg.norm(target)
+        target = target.tolist()
+
+    # ims, vectors = sampler.generate_images_for_megatile(world_data, set_of_coords, latent_vectors, sigma, lengthscale)
+    # images = ims_to_string(ims)
+
+    vectors = vectors + sampler.sample_latent_vector(world_data, set_of_coords, latent_vectors, sigma, lengthscale)
+    vectors = vectors / np.linalg.norm(vectors, axis=1, keepdims=True)
+    vectors = vectors.tolist()
+    images = ""
+    time.sleep(0.3)
+    '''
 
 def convertToPNG(im):
     with BytesIO() as f:

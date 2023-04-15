@@ -1,7 +1,7 @@
 # FROM python:3.9-slim
 # FROM nvidia/cuda:11.0-cudnn8-runtime-ubuntu18.04
-FROM us-docker.pkg.dev/vertex-ai/prediction/pytorch-gpu.1-12:latest
-# https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers#pytorch
+
+FROM us-docker.pkg.dev/vertex-ai/prediction/pytorch-gpu.1-12:latest    # https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers#pytorch
 
 # Set the working directory to /app
 WORKDIR /app
