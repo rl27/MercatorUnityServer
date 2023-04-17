@@ -44,7 +44,7 @@ def get_image():
 
     response = predict_custom_trained_model_sample(
         project="inbound-bee-381420",
-        endpoint_id="1024511740622143488",
+        endpoint_id="52684199156514816",
         location="us-central1",
         instances=data
     )

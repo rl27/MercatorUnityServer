@@ -14,7 +14,7 @@ print("app and sampler created")
 
 #-----------------------------------------------------------------------
 
-using_midpoint = True
+using_midpoint = False
 
 @app.route('/get_image', methods=['POST'])
 def get_image():
