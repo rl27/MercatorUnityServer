@@ -10,7 +10,7 @@ from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 
 # Use Google service account
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getcwd() + "/inbound-bee-381420-3b5ab19a2a50.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getcwd() + "/graphic-ripsaw-384301-26dd990eb2ef.json"
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -43,8 +43,8 @@ def get_image():
     data = request.get_json()
 
     response = predict_custom_trained_model_sample(
-        project="inbound-bee-381420",
-        endpoint_id="52684199156514816",
+        project="graphic-ripsaw-384301",
+        endpoint_id="4860136063886163968",
         location="us-central1",
         instances=data
     )

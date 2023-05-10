@@ -2,6 +2,7 @@ venv/
 .idea
 world_data
 inbound-bee-381420*
+graphic-ripsaw-384301*
 *.pkl
 
 ## Ignore Visual Studio temporary files, build results, and
