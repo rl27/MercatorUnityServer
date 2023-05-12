@@ -59,7 +59,7 @@ def get_image():
 
 # Health check route
 @app.route("/isalive")
-def is_alive():
+def isalive():
     print("/isalive request")
     status_code = Response(status=200)
     return status_code

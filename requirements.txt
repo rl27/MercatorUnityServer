@@ -5,10 +5,10 @@ flask
 # gunicorn
 # rdkit-pypi
 
-# --extra-index-url https://download.pytorch.org/whl/cpu  # URL for using torch on CPU
+--extra-index-url https://download.pytorch.org/whl/cpu  # URL for using torch on CPU
 torch==1.12.0
 torchvision==0.13.0
--f https://download.pytorch.org/whl/torch_stable.html
+# -f https://download.pytorch.org/whl/torch_stable.html
 
 
 # For LAFITE
